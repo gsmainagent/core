@@ -203,6 +203,21 @@ export class WebEventsGateway
     this.whenUserOnline()
     super.handleConnect(socket)
     this.hooks.onConnected.forEach((fn) => fn(socket))
+
+    // Immediately send current online count to the newly connected socket.
+    // The debounced broadcast (whenUserOnline) may not reach this socket in
+    // time — or at all behind certain proxies / CDNs — leaving the client
+    // stuck at the initial value of 0.
+    this.sendOnlineNumber()
+      .then((onlineData) => {
+        socket.emit(
+          'message',
+          this.gatewayMessageFormat(BusinessEvents.VISITOR_ONLINE, onlineData),
+        )
+      })
+      .catch(() => {
+        // Non-critical: the debounced broadcast will still fire later.
+      })
   }
 
   private async updateSocketLang(socket: SocketIO.Socket, lang: string) {
