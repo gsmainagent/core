@@ -98,6 +98,13 @@ export class ActivityController<ResponseWrapper> implements IController {
     return this.proxy.rooms.get<RoomsData>()
   }
 
+  async getOnlineCount() {
+    return this.proxy(`online-count`).get<{
+      total: number
+      rooms: Record<string, number>
+    }>()
+  }
+
   async getRecentActivities() {
     return this.proxy.recent.get<RecentActivities>()
   }
