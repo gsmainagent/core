@@ -39,5 +39,10 @@ export function snakecaseKeysWithCompat<
   T extends Record<string, any> | readonly Record<string, any>[],
 >(obj: T, options?: SnakeCaseKeysOptions): T {
   const plainObj = toPlainObject(obj)
-  return snakecaseKeys(plainObj as any, options) as T
+  // 保留 $ 开头的元键（如 $replace / $idkey），不被 snakecase-keys 当分隔符剥掉
+  const mergedOptions: SnakeCaseKeysOptions = {
+    exclude: [/^\$/],
+    ...options,
+  }
+  return snakecaseKeys(plainObj as any, mergedOptions) as T
 }
